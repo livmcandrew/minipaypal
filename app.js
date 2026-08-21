@@ -11,19 +11,10 @@ require("dotenv").config();
 const app = express();
 //console.log(integration)
 
-//For Adyen Integration
-app.use((req, res, next) => {
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  next();
-});
-
 
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-
-//For Adyen Integration
-app.use("/api", adyenRoutes);
 
 // Include your idempotency key when you make an API request.
 const requestOptions = { idempotencyKey: "YOUR_IDEMPOTENCY_KEY" };
