@@ -21,7 +21,7 @@ async function transactionPaymentNonce(payload, setAmount) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         paymentMethodNonce: payload.nonce,
-        amount: setAmount
+        amount: setAmount,
         storeInVault: true,
       })
     });
