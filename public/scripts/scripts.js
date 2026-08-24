@@ -387,6 +387,7 @@ fetch("/btcheckout")
                         console.log("Payment Successful:", data);
 
                         if (data.success) {
+                            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                             try {
                                 await delay(5000); 
                                 const vaultResp = await fetch('/btcheckout/vaultedPayment', {
