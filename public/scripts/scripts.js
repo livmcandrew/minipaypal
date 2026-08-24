@@ -217,6 +217,7 @@ fetch("/btcheckout")
                         console.log(result)
 
                         // vaulted payment
+                        let vaultData;
                         const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
                         try {
                             await delay(5000);
@@ -230,7 +231,7 @@ fetch("/btcheckout")
                             });
 
                             if (!vaultResp.ok) throw new Error(await vaultResp.text());
-                            const vaultData = await vaultResp.json();
+                            vaultData = await vaultResp.json();
                             console.log("Vaulted charge result:", vaultData);
 
                         } catch (err) {
