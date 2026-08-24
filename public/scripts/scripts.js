@@ -22,6 +22,7 @@ async function transactionPaymentNonce(payload, setAmount) {
       body: JSON.stringify({
         paymentMethodNonce: payload.nonce,
         amount: setAmount
+        storeInVault: true,
       })
     });
 
@@ -369,7 +370,8 @@ fetch("/btcheckout")
                     // → nonce (Apple Pay) → send to your server to create a transaction 
                     const body = { 
                         paymentMethodNonce: nonce, 
-                        amount: paymentRequest.total.amount 
+                        amount: paymentRequest.total.amount,
+                        storeInVault: true 
                     }; 
 
                     const resp = await fetch('/btcheckout', { 
