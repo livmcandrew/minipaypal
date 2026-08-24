@@ -214,7 +214,29 @@ fetch("/btcheckout")
                     if (result.success) {
                         alert("✅ Transaction successful!\nTransaction ID: " + result.transactionId);
                         console.log(result)
-                }
+
+                        // vaulted payment
+                        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                        try {
+                            await delay(5000);
+                            const vaultResp = await fetch('/btcheckout/vaultedPayment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    paymentMethodToken: result.paymentMethodToken,
+                                    amount: "50.00"
+                                })
+                            });
+
+                            if (!vaultResp.ok) throw new Error(await vaultResp.text());
+                            const vaultData = await vaultResp.json();
+                            console.log("Vaulted charge result:", vaultData);
+
+                        } catch (err) {
+                            console.error('Vaulted payment failed:', err);
+                        }
+                    
+                    }
                 } catch (error){
                     console.error("Error during transaction:", error);
                 }
