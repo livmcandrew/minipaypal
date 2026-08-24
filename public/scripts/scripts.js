@@ -243,11 +243,6 @@ fetch("/btcheckout")
                             refundButton.hidden = false;
 
                             refundButton.addEventListener('click', async () => {
-                                if (!currentTransactionId) {
-                                    console.error('No transaction to refund');
-                                    return;
-                                }
-
                                 refundButton.disabled = true; // prevent double-clicks while the request is in flight
 
                                 try {
