@@ -1,6 +1,7 @@
 //Client Side implementation 
 var submitButton = document.getElementById("submit-button");
 var paypalButton = document.getElementById("paypal-button");
+var refundButton = document.getElementById("refund-button")
 const setAmount = "150.00";
 var billingAddress = {
     givenName: "Jill",
@@ -234,6 +235,45 @@ fetch("/btcheckout")
 
                         } catch (err) {
                             console.error('Vaulted payment failed:', err);
+                        }
+
+                        //add refund transaction 
+                        if (vaultData.success){
+                            refundButton.hidden = false;
+
+                            refundButton.addEventListener('click', async () => {
+                                if (!currentTransactionId) {
+                                    console.error('No transaction to refund');
+                                    return;
+                                }
+
+                                refundButton.disabled = true; // prevent double-clicks while the request is in flight
+
+                                try {
+                                    const resp = await fetch('/btcheckout/refund', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ transactionId: vaultData.transactionId })
+                                    });
+
+                                    if (!resp.ok) throw new Error(await resp.text());
+                                    const refundResult = await resp.json();
+
+                                    if (refundResult.success) {
+                                        showMessage(`Refund successful: ${refundResult.refundId ?? refundResult.transactionId}`, true);
+                                        refundButton.hidden = true;
+                                    } else {
+                                        showMessage('Refund failed', false);
+                                    }
+
+                                } catch (err) {
+                                    console.error('Refund failed:', err);
+                                    showMessage('Refund failed', false);
+                                } finally {
+                                    refundButton.disabled = false;
+                                }
+                            });
+
                         }
                     
                     }

@@ -111,5 +111,28 @@ router.post("/vaultedPayment", express.json(), (req, res) => {
   );
 });
 
+// POST refund transaction
+router.post("/refund", express.json(), (req, res) => {
+  const { transactionId} = req.body;
+
+  gateway.transaction.refund(transactionId, (error, result) => {
+    if (error || !result?.success) {
+      return res.status(500).send({
+        success: false,
+        error: error?.message || result?.message || error,
+        result,
+      });
+    }
+
+    return res.send({
+      success: true,
+      transactionId: result.transaction.id,
+      paymentMethodToken: result.transaction.paymentMethodToken,
+      customerId: result.transaction.customer?.id,
+      result,
+    });
+  });
+});
+
 
 module.exports = router;
