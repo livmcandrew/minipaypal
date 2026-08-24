@@ -16,7 +16,7 @@ const router = express.Router();
 
 // GET Token API to reteive client token
 router.get("/", (req, res) => {
-  gateway.clientToken.generate({merchantAccountId: "liv_gbp" }, (err, response) => {
+  gateway.clientToken.generate({merchantAccountId: "liv_app" }, (err, response) => {
     if (err) {
       console.error("clientToken.generate error:", err);
       return res.status(500).send({ error: err.message || err });
@@ -35,7 +35,7 @@ router.post("/",  express.json(), (req, res) => {
       paymentMethodNonce,
       amount,
       ...(lineItems && { lineItems }), // include lineItems if provided
-      merchantAccountId: "liv_gbp",
+      merchantAccountId: "liv_app",
       options: {
         submitForSettlement: true,
         storeInVaultOnSuccess: !!storeInVault, // vault only when asked
