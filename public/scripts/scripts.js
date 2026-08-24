@@ -381,7 +381,6 @@ fetch("/btcheckout")
                         }); 
                         
                         if (!resp.ok) throw new Error(await resp.text());       
-                        session.completePayment(ApplePaySession.STATUS_SUCCESS); 
                         const data = await resp.json();
                         session.completePayment(ApplePaySession.STATUS_SUCCESS);
                         showMessage(`Payment Successful: ${JSON.stringify(data)}`, true);
