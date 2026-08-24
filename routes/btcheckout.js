@@ -81,7 +81,10 @@ router.post("/vaultedPayment", express.json(), (req, res) => {
       deviceData,
       paymentMethodToken,       // the permanent vault token, not a nonce
       amount,
-      transactionSource: "recurring_first",
+      transactionSource: "recurring",
+      customFields: {
+        name: "custom_field_test"
+      },
       ...(lineItems && { lineItems }),
       merchantAccountId: "liv_app",
       options: {
