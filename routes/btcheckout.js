@@ -72,5 +72,40 @@ router.post("/",  express.json(), (req, res) => {
   );
 });
 
+// POST transcation.sale API with vaulted payment method to make sale
+router.post("/vaultedPayment", express.json(), (req, res) => {
+  const { paymentMethodToken, deviceData, amount, lineItems } = req.body;
+
+  gateway.transaction.sale(
+    {
+      deviceData,
+      paymentMethodToken,       // the permanent vault token, not a nonce
+      amount,
+      ...(lineItems && { lineItems }),
+      merchantAccountId: "liv_app",
+      options: {
+        submitForSettlement: true,
+      },
+    },
+    (error, result) => {
+      if (error || !result?.success) {
+        return res.status(500).send({
+          success: false,
+          error: error?.message || result?.message || error,
+          result,
+        });
+      }
+
+      return res.send({
+        success: true,
+        transactionId: result.transaction.id,
+        paymentMethodToken: result.transaction.paymentMethodToken,
+        customerId: result.transaction.customer?.id,
+        result,
+      });
+    }
+  );
+});
+
 
 module.exports = router;

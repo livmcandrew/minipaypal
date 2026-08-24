@@ -363,28 +363,52 @@ fetch("/btcheckout")
                 session.onpaymentauthorized = async (event) => { 
 
                     try { 
-                    const { nonce } = await applePayInstance.tokenize({ 
-                        token: event.payment.token 
-                    }); 
+                        const { nonce } = await applePayInstance.tokenize({ 
+                            token: event.payment.token 
+                        }); 
 
-                    // → nonce (Apple Pay) → send to your server to create a transaction 
-                    const body = { 
-                        paymentMethodNonce: nonce, 
-                        amount: paymentRequest.total.amount,
-                        storeInVault: true 
-                    }; 
+                        // → nonce (Apple Pay) → send to your server to create a transaction 
+                        const body = { 
+                            paymentMethodNonce: nonce, 
+                            amount: paymentRequest.total.amount,
+                            storeInVault: true 
+                        }; 
 
-                    const resp = await fetch('/btcheckout', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(body) 
-                    }); 
-                    
-                    if (!resp.ok) throw new Error(await resp.text());       
-                    session.completePayment(ApplePaySession.STATUS_SUCCESS); 
-                    const data = await resp.json(); // read the body ONCE
-                    showMessage(`Payment Successful: ${JSON.stringify(data)}`, true);
-                    console.log("Payment Successful:", data);
+                        const resp = await fetch('/btcheckout', { 
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify(body) 
+                        }); 
+                        
+                        if (!resp.ok) throw new Error(await resp.text());       
+                        session.completePayment(ApplePaySession.STATUS_SUCCESS); 
+                        const data = await resp.json();
+                        session.completePayment(ApplePaySession.STATUS_SUCCESS);
+                        showMessage(`Payment Successful: ${JSON.stringify(data)}`, true);
+                        console.log("Payment Successful:", data);
+
+                        if (data.success) {
+                            try {
+                                await delay(5000); 
+                                const vaultResp = await fetch('/btcheckout/vaultedPayment', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        paymentMethodToken: data.paymentMethodToken, // whatever field your server actually returns
+                                        amount: "50.00"
+                                    })
+                                });
+
+                                if (!vaultResp.ok) throw new Error(await vaultResp.text());
+                                const vaultData = await vaultResp.json();
+                                console.log("Vaulted charge result:", vaultData);
+
+                            } catch (err) {
+                                console.error('Vaulted payment failed:', err);
+                            }
+                        }
+                        
+
                     } catch (err) { 
                         console.error('Payment failed:', err); 
                         console.log('Merchant validation failed:', err); 
