@@ -535,7 +535,29 @@ fetch("/btcheckout")
                                     if (data.success) {
                                         showMessage(`Payment Successful: Transaction ID ${data.transactionId}`, true);
                                         console.log('Google Pay payment successful:', data);
+
+                          
+                                        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                                        try {
+                                            await delay(5000); 
+                                            const vaultResp = await fetch('/btcheckout/vaultedPayment', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    paymentMethodToken: data.paymentMethodToken, // whatever field your server actually returns
+                                                    amount: "50.00"
+                                                })
+                                            });
+
+                                            if (!vaultResp.ok) throw new Error(await vaultResp.text());
+                                            const vaultData = await vaultResp.json();
+                                            console.log("Vaulted charge result:", vaultData);
+
+                                        } catch (err) {
+                                            console.error('Vaulted payment failed:', err);
+                                        }
                                     }
+                                    
                                 } catch (error) {
                                     console.error('Error during transaction:', error);
                                 }
