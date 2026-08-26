@@ -134,5 +134,40 @@ router.post("/refund", express.json(), (req, res) => {
   });
 });
 
+// GET transcation.sale API to AUTH sale
+router.post("/auth",  express.json(), (req, res) => {
+  const { paymentMethodNonce, deviceData, amount, storeInVault } = req.body;
+
+  gateway.transaction.sale(
+    {
+      deviceData,
+      paymentMethodNonce,
+      amount,
+      transactionSource: "recurring",
+      merchantAccountId: "liv_app",
+      options: {
+        submitForSettlement: false, // AUTH only
+        storeInVaultOnSuccess: !!storeInVault, // vault only when asked
+      },
+    },
+    (error, result) => {
+      if (error || !result?.success) {
+        return res.status(500).send({
+          success: false,
+          error: error?.message || result?.message || error,
+          result,
+        });
+      }
+
+      return res.send({
+        success: true,
+        transactionId: result.transaction.id,
+        paymentMethodToken: result.transaction.paymentMethodToken,
+        customerId: result.transaction.customer?.id,
+        result
+      });
+    }
+  );
+});
 
 module.exports = router;

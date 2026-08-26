@@ -17,7 +17,7 @@ var billingAddress = {
 // Call 'payload.nonce' to your server
 async function transactionPaymentNonce(payload, setAmount) {
   try {
-    const response = await fetch("/btcheckout", {
+    const response = await fetch("/btcheckout/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -283,95 +283,6 @@ fetch("/btcheckout")
         });
         });
 
-        // Create a PayPal Checkout component.
-        braintree.paypalCheckout.create({
-            client: clientInstance
-            }, function (paypalCheckoutErr, paypalCheckoutInstance) {
-
-                // Base PayPal SDK script options
-                var loadPayPalSDKOptions = {
-                    currency: 'GBP',  // Must match the currency passed in with createPayment
-                    intent: 'capture', // Must match the intent passed in with createPayment
-                    components: 'buttons,messages',
-                    commit: true,
-                    'enable-funding': 'paylater',
-                    'buyer-country': 'GB',
-                    dataAttributes: {
-                        amount: setAmount,
-                    },
-                }
-                
-                // Stop if there was a problem creating PayPal Checkout.
-                if (paypalCheckoutErr) {
-                console.error('Error creating PayPal Checkout:', paypalCheckoutErr);
-                return;
-                }
-
-                // Load the PayPal JS SDK
-                paypalCheckoutInstance.loadPayPalSDK(loadPayPalSDKOptions, function () {
-                
-                    //ADD regular PAYPAL BUTTON
-                    paypal.Buttons({
-                        fundingSource: paypal.FUNDING.PAYPAL,
-                        style: {
-                            shape: "rect",
-                            color: "gold",
-                            label: "paypal"
-                        },
-                        createOrder: function () {
-                        var createPaymentRequestOptions = {
-                            flow: 'checkout', // Required
-                            intent: 'capture',
-                            currency: 'GBP',
-                            amount: setAmount,
-                            userAction: 'PAY'
-                        };
-                                
-
-                        return paypalCheckoutInstance.createPayment(createPaymentRequestOptions);
-                        },
-
-                        onApprove: function (data, actions) {
-                            // Return a promise that resolves/rejects when you're done
-                            return new Promise((resolve, reject) => {
-                                paypalCheckoutInstance.tokenizePayment(data, async function (err, payload) {
-                                if (err) {
-                                    console.error("tokenizePayment error", err);
-                                    return reject(err);
-                                }
-                                
-                                console.log("Buyer's PayPal email:", payload.details.email);
-
-                                try {
-                                    // Call transcation API 
-                                    const result = await transactionPaymentNonce(payload, setAmount)
-                                    //SHOW RESPONSE
-                                    if (result.success) {
-                                        console.log(result)
-                                        resolve(result);
-                                    }
-                                    } catch (error){
-                                        console.error("Error during transaction:", error);
-                                        reject(error);
-                                    }
-                                });
-                            });
-                        },
-
-                        onCancel: function (data) {
-                            console.log('PayPal payment cancelled', JSON.stringify(data, 0, 2));
-                        },
-
-                        onError: function (err) {
-                            console.error('PayPal error', err);
-                        }
-                    }).render('#paypal-button').then(function () {
-                            // The PayPal button will be rendered in an html element with the ID 'paypal-button'
-                    });
-                
-                });       
-        });
-
         // Add Apple Pay Checkout
         braintree.applePay.create({ 
                 client: clientInstance 
@@ -432,7 +343,7 @@ fetch("/btcheckout")
                             storeInVault: true 
                         }; 
 
-                        const resp = await fetch('/btcheckout', { 
+                        const resp = await fetch('/btcheckout/auth', { 
                             method: 'POST', 
                             headers: { 'Content-Type': 'application/json' }, 
                             body: JSON.stringify(body) 
@@ -557,7 +468,7 @@ fetch("/btcheckout")
                                             console.error('Vaulted payment failed:', err);
                                         }
                                     }
-                                    
+
                                 } catch (error) {
                                     console.error('Error during transaction:', error);
                                 }
