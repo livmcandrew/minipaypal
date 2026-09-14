@@ -17,7 +17,7 @@ var billingAddress = {
 // Call 'payload.nonce' to your server
 async function transactionPaymentNonce(payload, setAmount) {
   try {
-    const response = await fetch("/btcheckout/auth", {
+    const response = await fetch("/btcheckout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -343,7 +343,7 @@ fetch("/btcheckout")
                             storeInVault: true 
                         }; 
 
-                        const resp = await fetch('/btcheckout/auth', { 
+                        const resp = await fetch('/btcheckout', { 
                             method: 'POST', 
                             headers: { 'Content-Type': 'application/json' }, 
                             body: JSON.stringify(body) 
@@ -456,7 +456,8 @@ fetch("/btcheckout")
                                                 headers: { 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({
                                                     paymentMethodToken: data.paymentMethodToken, // whatever field your server actually returns
-                                                    amount: "50.00"
+                                                    amount: "50.00",
+                                                    storeInVault: true
                                                 })
                                             });
 
